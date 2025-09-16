@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ប្រព័ន្ធគ្រប់គ្រងវិន័យបុគ្គលិក</title>
+    <link rel="icon" type="image/png" href="./image.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* === ការកំណត់สีគោល (CSS Variables) === */
+        :root {
+            --primary-color: #00796b;
+            --primary-hover: #005a4f;
+            --secondary-color: #4db6ac;
+            --danger-color: #d32f2f;
+            --danger-hover: #b71c1c;
+            --font-family: 'Kantumruy Pro', sans-serif;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+            /* Theme ថ្ងៃ (Light Mode) */
+            --background-color: #f4f6f9;
+            --card-background: #ffffff;
+            --text-color: #212121;
+            --subtle-text-color: #555;
+            --border-color: #e0e0e0;
+            --input-bg-color: #fff;
+        }
+
+        /* === ការកំណត់สีសម្រាប់ Theme យប់ (Dark Mode) === */
+        html[data-theme='dark'] {
+            --background-color: #121212;
+            --card-background: #1e1e1e;
+            --text-color: #e0e0e0;
+            --subtle-text-color: #9e9e9e;
+            --border-color: #424242;
+            --input-bg-color: #2c2c2c;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 24px;
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* === START: កូដសម្រាប់កែ Header និង Logo === */
+        /* 1. កែសម្រួល Header ឱ្យដាក់ធាតុជាជួរឈរ និងនៅកណ្តាល */
+        .app-header {
+            display: flex;
+            flex-direction: column;
+            /* ប្តូរទៅជាជួរឈរ */
+            align-items: center;
+            /* តម្រឹមកណ្តាលផ្ដេក */
+            margin-bottom: 20px;
+            /* បន្ថយគម្លាតបន្តិច */
+            gap: 15px;
+            /* គម្លាតរវាង Logo និង Title */
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 25px;
+            position: relative;
+            /* ត្រូវការសម្រាប់ដាក់ប៊ូតុង Theme */
+        }
+
+        /* 2. កំណត់ម៉ូត Logo ឱ្យមូល, មានស្រមោល និងមានចលនា */
+        #app-logo {
+            width: 100px;
+            /* កំណត់ទំហំ */
+            height: 100px;
+            border-radius: 50%;
+            /* ធ្វើឱ្យមានរាងមូល */
+            border: 4px solid var(--primary-color);
+            /* ដាក់ស៊ុមពណ៌ */
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            /* ដាក់ស្រមោលឱ្យ nổi */
+            object-fit: cover;
+            /* ធានារូបភាពពេញស៊ុមស្អាត */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            /* សម្រាប់ Hover Effect */
+            animation: pulse 2.5s infinite ease-in-out;
+            /* បែបផែន Dynamic */
+        }
+
+        /* បែបផែនពេលយក Mouse ទៅដាក់ពីលើ Logo */
+        #app-logo:hover {
+            transform: scale(1.1);
+            /* ពង្រីក Logo បន្តិច */
+            box-shadow: 0 8px 25px rgba(0, 121, 107, 0.2);
+            /* ប្តូរស្រមោលឱ្យភ្លឺជាងមុន */
+            cursor: pointer;
+        }
+
+        /* 3. កែសម្រួល Title ឱ្យនៅកណ្តាល */
+        h1 {
+            color: var(--primary-color);
+            margin: 0;
+            text-align: center;
+            font-size: 1.8em;
+            line-height: 1.3;
+        }
+
+        /* 4. ផ្លាស់ប្តូរទីតាំងប៊ូតុង Theme */
+        #theme-toggle {
+            position: absolute;
+            /* ដាក់ឱ្យអណ្តែត */
+            top: 0;
+            right: 0;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background-color 0.3s, transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        #theme-toggle:hover {
+            background-color: var(--border-color);
+            transform: scale(1.1);
+        }
+
+        .moon-icon {
+            display: none;
+        }
+
+        html[data-theme='dark'] .sun-icon {
+            display: none;
+        }
+
+        html[data-theme='dark'] .moon-icon {
+            display: block;
+        }
+
+        /* === END: កូដសម្រាប់កែ Header និង Logo === */
+
+        h2,
+        h3 {
+            text-align: center;
+            font-weight: 700;
+        }
+
+        h2 {
+            color: var(--text-color);
+            margin-top: 0;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        html[data-theme='dark'] .card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .card.hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--subtle-text-color);
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+            font-size: 16px;
+            background-color: var(--input-bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.2);
+        }
+
+        input:disabled {
+            background-color: #333;
+            color: #999;
+        }
+
+        #student-info-display {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            transition: opacity 0.5s ease;
+        }
+
+        #student-info-display img {
+            width: 140px;
+            height: 140px;
+            border-radius: 12px;
+            border: 4px solid var(--secondary-color);
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .student-text-details {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px 12px;
+            text-align: left;
+            flex-grow: 1;
+        }
+
+        .student-text-details strong {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .details-section-separator {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .reason-breakdown-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 6px 12px;
+            font-size: 14px;
+        }
+
+        .reason-breakdown-grid span:nth-child(odd) {
+            color: var(--subtle-text-color);
+        }
+
+        .reason-breakdown-grid span:nth-child(even) {
+            font-weight: 600;
+        }
+
+        .other-notes-list {
+            font-size: 14px;
+            padding-left: 20px;
+            margin: 0;
+            color: var(--subtle-text-color);
+        }
+
+        .other-notes-list li {
+            margin-bottom: 4px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: var(--font-family);
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        #toggle-history-btn {
+            display: block;
+            margin: 32px auto;
+            width: auto;
+            background-color: #27ae60;
+        }
+
+        #toggle-history-btn:hover {
+            background-color: #219150;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: var(--primary-hover);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr {
+            transition: background-color 0.3s;
+        }
+
+        tr:hover {
+            background-color: rgba(0, 121, 107, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            width: auto;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .edit-btn svg {
+            fill: var(--secondary-color);
+        }
+
+        .delete-btn svg {
+            fill: var(--danger-color);
+        }
+
+        .action-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--primary-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .modal-content {
+            background: var(--card-background);
+            padding: 24px 32px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+            max-width: 450px;
+            width: 90%;
+            transform: scale(1);
+            transition: transform 0.3s ease;
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .modal-content.success {
+            border-top-color: #2ecc71;
+        }
+
+        .modal-content.error {
+            border-top-color: var(--danger-color);
+        }
+
+        .modal-overlay.hidden .modal-content {
+            transform: scale(0.9);
+        }
+
+        .modal-message {
+            margin: 0 0 20px 0;
+            font-size: 18px;
+            color: var(--text-color);
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-buttons button {
+            width: auto;
+            min-width: 100px;
+            margin-top: 0;
+        }
+
+        .modal-buttons .cancel-btn {
+            background-color: #757575;
+        }
+
+        .modal-buttons .cancel-btn:hover {
+            background-color: #616161;
+        }
+
+        .modal-buttons .danger-btn {
+            background-color: var(--danger-color);
+        }
+
+        .modal-buttons .danger-btn:hover {
+            background-color: var(--danger-hover);
+        }
+
+        /* Animation សម្រាប់ Logo */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(0, 121, 107, 0.2);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="app-header">
+            <img id="app-logo" src="./image.png" alt="Company Logo">
+            <h1>ឧស្សារហកម្មឌីជីថល <br> ប្រព័ន្ធគ្រប់គ្រងវិន័យបុគ្គលិក សណ្តាប់ធ្នាប់សំរាម</h1>
+            <button id="theme-toggle" title="ប្តូរ Theme">
+                <span class="sun-icon">☀️</span>
+                <span class="moon-icon">🌙</span>
+            </button>
+        </header>
+
+        <div class="main-layout">
+            <div class="card">
+                <div style="text-align:center;">
+                    <h2>បញ្ចូលព័ត៌មានកំហុស</h2>
+                </div>
+                <form id="record-form">
+                    <div class="form-group">
+                        <label for="student-search-input">ស្វែងរកបុគ្គលិក (វាយបញ្ចូលឈ្មោះ)</label>
+                        <input type="text" id="student-search-input" list="student-list" autocomplete="off">
+                        <datalist id="student-list"></datalist>
+                    </div>
+                    <div class="form-group">
+                        <label for="record-date">ថ្ងៃ-ខែ-ឆ្នាំ</label>
+                        <input type="date" id="record-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reason">មូលហេតុ</label>
+                        <select id="reason" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="other-reason">ផ្សេងៗ (ប្រសិនបើមាន)</label>
+                        <textarea id="other-reason"></textarea>
+                    </div>
+                    <button type="submit">រក្សាទុក</button>
+                </form>
+            </div>
+            <div class="card" id="student-details-card">
+                <div style="text-align:center;">
+                    <h2>ព័ត៌មានលម្អិតបុគ្គលិក</h2>
+                </div>
+                <div id="student-info-display">
+                    <p><i>សូមជ្រើសរើសបុគ្គលិកដើម្បីបង្ហាញព័ត៌មាន...</i></p>
+                </div>
+                <div class="details-section-separator" id="reason-breakdown" style="display:none;"></div>
+                <div class="details-section-separator" id="other-notes-container" style="display:none;"></div>
+            </div>
+        </div>
+
+        <button id="toggle-history-btn">បង្ហាញ​ទិន្នន័យ​ដែល​បាន​បញ្ចូល</button>
+        <div class="card hidden" id="history-section">
+            <div style="text-align:center;">
+                <h2>ប្រវត្តិទិន្នន័យដែលបានបញ្ចូល</h2>
+            </div>
+            <div class="filters">
+                <input type="text" id="history-search-input" placeholder="ស្វែងរកតាមឈ្មោះ ឬ ID..."
+                    style="flex-grow: 1;">
+                <select id="date-filter">
+                    <option value="">ជ្រើសតាមកាលបរិច្ឆេទទាំងអស់</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table id="history-table">
+                    <thead>
+                        <tr>
+                            <th>ថ្ងៃ-ខែ-ឆ្នាំ</th>
+                            <th>ID</th>
+                            <th>ឈ្មោះ</th>
+                            <th>ភេទ</th>
+                            <th>ថ្នាក់</th>
+                            <th>ក្រុម</th>
+                            <th>មូលហេតុ</th>
+                            <th>ផ្សេងៗ</th>
+                            <th>កំហុសសរុប</th>
+                            <th>សកម្មភាព</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="custom-alert" class="modal-overlay hidden">
+        <div class="modal-content">
+            <p class="modal-message" id="custom-alert-message"></p>
+            <div class="modal-buttons"><button id="custom-alert-close">យល់ព្រម</button></div>
+        </div>
+    </div>
+    <div id="edit-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 style="margin-top:0; text-align:center;">កែសម្រួលកំណត់ត្រា</h3>
+            <form id="edit-form">
+                <input type="hidden" id="edit-row-index">
+                <div class="form-group"><label>ឈ្មោះបុគ្គលិក</label><input type="text" id="edit-student-name" disabled>
+                </div>
+                <div class="form-group"><label for="edit-date">កែសម្រួលថ្ងៃ-ខែ-ឆ្នាំ</label><input type="date"
+                        id="edit-date" required></div>
+                <div class="form-group"><label for="edit-reason">កែសម្រួលមូលហេតុ</label><select id="edit-reason"
+                        required></select></div>
+                <div class="form-group"><label for="edit-other-reason">ផ្សេងៗ (ប្រសិនបើមាន)</label><textarea
+                        id="edit-other-reason"></textarea></div>
+                <div class="modal-buttons">
+                    <button type="button" id="edit-cancel-btn" class="cancel-btn">បោះបង់</button>
+                    <button type="submit" id="edit-save-btn">រក្សាទុកការផ្លាស់ប្តូរ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="custom-confirm" class="modal-overlay hidden">
+        <div class="modal-content">
+            <p class="modal-message" id="custom-confirm-message"></p>
+            <div class="modal-buttons">
+                <button id="confirm-no-btn" class="cancel-btn">បោះបង់</button>
+                <button id="confirm-yes-btn" class="danger-btn">យល់ព្រម</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // ==========================================================
+            // === កូដសម្រាប់គ្រប់គ្រង Theme ថ្ងៃ/យប់ (Day/Night Mode) ===
+            // ==========================================================
+            const themeToggle = document.getElementById('theme-toggle');
+            const currentTheme = localStorage.getItem('theme');
+
+            if (currentTheme) {
+                document.documentElement.setAttribute('data-theme', currentTheme);
+            }
+
+            themeToggle.addEventListener('click', () => {
+                const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+
+            // ===============================================
+            // ===             កូដកម្មវិធីหลัก             ===
+            // ===============================================
+
+            // !!! សំខាន់៖ សូមយក URL ដែលអ្នកបាន Copy ពីការ Deploy របស់ Apps Script មកដាក់នៅទីនេះ !!!
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyaC_vvyYix56lZTH8Qr-0HoHabTM1zYZG5v3QBW0XMOmvLaFd-lyfPlQumrjojWH8mjQ/exec";
+
+            let allStudents = [], allRecords = [], selectedStudent = null, infractionCounts = {};
+            let allReasons = [];
+
+            const loader = document.getElementById('loader');
+            const studentSearchInput = document.getElementById('student-search-input');
+            const historyTableBody = document.querySelector('#history-table tbody');
+            const customAlert = document.getElementById('custom-alert');
+            const customAlertMessage = document.getElementById('custom-alert-message');
+            const customAlertCloseBtn = document.getElementById('custom-alert-close');
+            const editModal = document.getElementById('edit-modal');
+            const editForm = document.getElementById('edit-form');
+            const editCancelBtn = document.getElementById('edit-cancel-btn');
+            const customConfirm = document.getElementById('custom-confirm');
+            const customConfirmMessage = document.getElementById('custom-confirm-message');
+            const confirmYesBtn = document.getElementById('confirm-yes-btn');
+            const confirmNoBtn = document.getElementById('confirm-no-btn');
+            const reasonBreakdownContainer = document.getElementById('reason-breakdown');
+            const otherNotesContainer = document.getElementById('other-notes-container');
+
+            function apiCall(action, method = 'GET', body = null) {
+                if (!SCRIPT_URL.startsWith("https://")) {
+                    showCustomAlert("សូមបញ្ចូល Web App URL ឱ្យបានត្រឹមត្រូវនៅក្នុងកូដ JavaScript!", "error");
+                    return Promise.reject("Invalid URL");
+                }
+                loader.style.display = 'flex';
+                let url = SCRIPT_URL + `?action=${action}`;
+                const options = { method: method, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, mode: 'cors', redirect: 'follow' };
+                if (method === 'POST') {
+                    options.body = JSON.stringify({ action, ...body });
+                    url = SCRIPT_URL;
+                }
+                return fetch(url, options)
+                    .then(response => {
+                        if (!response.ok) { throw new Error(`Network response error: ${response.statusText}`); }
+                        return response.json();
+                    })
+                    .catch(error => {
+                        showCustomAlert('មានបញ្ហាក្នុងការភ្ជាប់ទៅ API: ' + error.message, 'error');
+                        console.error("API Call Error:", error);
+                    })
+                    .finally(() => { loader.style.display = 'none'; });
+            }
+
+            function initializeApp() {
+                // កំណត់កាលបរិច្ឆេទថ្ងៃនេះ (16 កញ្ញា 2025)
+                const today = new Date('2025-09-16');
+                document.getElementById('record-date').valueAsDate = today;
+
+                customAlertCloseBtn.addEventListener('click', hideCustomAlert);
+                editCancelBtn.addEventListener('click', hideEditModal);
+                Promise.all([
+                    apiCall('getStudents'),
+                    apiCall('getReasons'),
+                    apiCall('getRecords')
+                ]).then(([students, reasons, records]) => {
+                    if (students) onStudentDataSuccess(students);
+                    if (reasons) onReasonListSuccess(reasons);
+                    if (records) onRecordsSuccess(records);
+                });
+            }
+
+            function onReasonListSuccess(reasons) {
+                if (!reasons || reasons.error) {
+                    showCustomAlert('ទាញយកមូលហេតុបរាជ័យ: ' + (reasons ? reasons.error : 'Unknown error'), 'error');
+                    return;
+                }
+                allReasons = reasons;
+                populateReasonDropdowns();
+            }
+
+            function onStudentDataSuccess(data) {
+                if (!data || data.error) {
+                    showCustomAlert('ទាញយកព័ត៌មានបុគ្គលិកបរាជ័យ: ' + (data ? data.error : 'Unknown error'), 'error');
+                    return;
+                }
+                allStudents = data;
+                const studentDatalist = document.getElementById('student-list');
+                studentDatalist.innerHTML = '';
+                allStudents.forEach(student => {
+                    const option = document.createElement('option');
+                    option.value = student.name;
+                    studentDatalist.appendChild(option);
+                });
+            }
+
+            function onRecordsSuccess(data) {
+                if (!data || data.error) {
+                    showCustomAlert('ទាញយកប្រវត្តិទិន្នន័យបរាជ័យ: ' + (data ? data.error : 'Unknown error'), 'error');
+                    return;
+                }
+                allRecords = data;
+                infractionCounts = allRecords.reduce((acc, record) => {
+                    const name = record.name;
+                    if (!acc[name]) { acc[name] = { total: 0 }; }
+                    acc[name].total = (acc[name].total || 0) + 1;
+                    acc[name][record.reason] = (acc[name][record.reason] || 0) + 1;
+                    return acc;
+                }, {});
+                populateDateFilter();
+                renderHistoryTable();
+                if (selectedStudent) {
+                    displayStudentDetails(selectedStudent);
+                }
+            }
+
+            document.getElementById('record-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!selectedStudent) { showCustomAlert('សូមជ្រើសរើសបុគ្គលិកពីក្នុងបញ្ជីជាមុនសិន', 'error'); return; }
+                const reasonSelect = document.getElementById('reason');
+                if (!reasonSelect.value) { showCustomAlert('សូមជ្រើសរើសមូលហេតុនៃកំហុស', 'error'); return; }
+                const record = { ...selectedStudent, date: document.getElementById('record-date').value, reason: reasonSelect.value, other: document.getElementById('other-reason').value.trim() };
+                apiCall('saveRecord', 'POST', { record: record }).then(response => {
+                    if (!response) return;
+                    const alertType = response.status === 'success' ? 'success' : 'error';
+                    showCustomAlert(response.message, alertType);
+                    if (response.status === 'success') {
+                        document.getElementById('record-form').reset();
+                        studentSearchInput.value = '';
+                        displayStudentDetails(null);
+                        selectedStudent = null;
+                        const today = new Date('2025-09-16');
+                        document.getElementById('record-date').valueAsDate = today;
+                        apiCall('getRecords').then(onRecordsSuccess);
+                        apiCall('getReasons').then(onReasonListSuccess);
+                    }
+                });
+            });
+
+            historyTableBody.addEventListener('click', async function (e) {
+                const editBtn = e.target.closest('.edit-btn');
+                const deleteBtn = e.target.closest('.delete-btn');
+                if (editBtn) {
+                    const rowIndex = editBtn.dataset.rowIndex;
+                    const record = allRecords.find(r => r.rowIndex == rowIndex);
+                    if (record) {
+                        document.getElementById('edit-row-index').value = record.rowIndex;
+                        document.getElementById('edit-student-name').value = record.name;
+                        document.getElementById('edit-date').value = record.date;
+                        document.getElementById('edit-reason').value = record.reason;
+                        document.getElementById('edit-other-reason').value = record.other || '';
+                        showEditModal();
+                    } else {
+                        showCustomAlert('រកមិនឃើញទិន្នន័យដែលត្រូវកែសម្រួល', 'error');
+                    }
+                }
+                if (deleteBtn) {
+                    const rowIndex = deleteBtn.dataset.rowIndex;
+                    const confirmed = await showCustomConfirm('តើអ្នកពិតជាចង់លុបកំណត់ត្រានេះមែនទេ?');
+                    if (confirmed) {
+                        apiCall('deleteRecord', 'POST', { rowIndex: rowIndex }).then(response => {
+                            if (!response) return;
+                            const alertType = response.status === 'success' ? 'success' : 'error';
+                            showCustomAlert(response.message, alertType);
+                            if (response.status === 'success') {
+                                apiCall('getRecords').then(onRecordsSuccess);
+                            }
+                        });
+                    }
+                }
+            });
+
+            editForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const editRowIndexInput = document.getElementById('edit-row-index');
+                const originalRecord = allRecords.find(r => r.rowIndex == editRowIndexInput.value);
+                if (!originalRecord) { showCustomAlert('មានបញ្ហា: រកមិនឃើញទិន្នន័យដើម', 'error'); return; }
+                const recordToUpdate = { ...originalRecord, date: document.getElementById('edit-date').value, reason: document.getElementById('edit-reason').value, other: document.getElementById('edit-other-reason').value.trim() };
+                hideEditModal();
+                apiCall('updateRecord', 'POST', { record: recordToUpdate }).then(response => {
+                    if (!response) return;
+                    const alertType = response.status === 'success' ? 'success' : 'error';
+                    showCustomAlert(response.message, alertType);
+                    if (response.status === 'success') {
+                        apiCall('getRecords').then(onRecordsSuccess);
+                    }
+                });
+            });
+
+            function showCustomAlert(message, type = 'info') {
+                const modalContent = customAlert.querySelector('.modal-content');
+                modalContent.className = 'modal-content';
+                if (type === 'success') modalContent.classList.add('success');
+                else if (type === 'error') modalContent.classList.add('error');
+                customAlertMessage.textContent = message;
+                customAlert.classList.remove('hidden');
+            }
+
+            function hideCustomAlert() { customAlert.classList.add('hidden'); }
+            function showEditModal() { editModal.classList.remove('hidden'); }
+            function hideEditModal() { editModal.classList.add('hidden'); }
+
+            function showCustomConfirm(message) {
+                return new Promise(resolve => {
+                    customConfirmMessage.textContent = message;
+                    customConfirm.classList.remove('hidden');
+                    confirmYesBtn.onclick = () => { customConfirm.classList.add('hidden'); resolve(true); };
+                    confirmNoBtn.onclick = () => { customConfirm.classList.add('hidden'); resolve(false); };
+                });
+            }
+
+            function populateReasonDropdowns() {
+                const reasonSelect = document.getElementById('reason');
+                const editReasonSelect = document.getElementById('edit-reason');
+                const currentReason = reasonSelect.value;
+                const currentEditReason = editReasonSelect.value;
+                reasonSelect.innerHTML = '<option value="" disabled selected>-- សូមជ្រើសរើសមូលហេតុ --</option>';
+                editReasonSelect.innerHTML = '';
+                allReasons.forEach(reason => {
+                    const option = document.createElement('option');
+                    option.value = reason; option.textContent = reason;
+                    reasonSelect.appendChild(option.cloneNode(true));
+                    editReasonSelect.appendChild(option.cloneNode(true));
+                });
+                reasonSelect.value = currentReason;
+                editReasonSelect.value = currentEditReason;
+            }
+
+            function displayStudentDetails(student) {
+                reasonBreakdownContainer.style.display = 'none';
+                otherNotesContainer.style.display = 'none';
+                if (student) {
+                    const counts = infractionCounts[student.name] || { total: 0 };
+                    document.getElementById('student-info-display').innerHTML = `<img src="${student.imageUrl || 'https://via.placeholder.com/150'}" alt="រូបភាពបុគ្គលិក" onerror="this.onerror=null;this.src='https://via.placeholder.com/150';"><div class="student-text-details"><strong>ID:</strong><span>${student.id || 'N/A'}</span><strong>ឈ្មោះ:</strong><span>${student.name}</span><strong>ភេទ:</strong><span>${student.gender}</span><strong>ថ្នាក់:</strong><span>${student.studentClass}</span><strong>ក្រុម:</strong><span>${student.group}</span><strong>កំហុសសរុប:</strong><span>${counts.total || 0} ដង</span></div>`;
+                    let breakdownHtmlParts = [];
+                    if (counts) {
+                        Object.keys(counts).forEach(reasonKey => {
+                            if (reasonKey !== 'total' && counts[reasonKey] > 0) {
+                                breakdownHtmlParts.push(`<span>• ${reasonKey}:</span><span>${counts[reasonKey]} ដង</span>`);
+                            }
+                        });
+                    }
+                    if (breakdownHtmlParts.length > 0) {
+                        reasonBreakdownContainer.innerHTML = `<div class="reason-breakdown-grid">${breakdownHtmlParts.join('')}</div>`;
+                        reasonBreakdownContainer.style.display = 'block';
+                    }
+                    const studentRecords = allRecords.filter(r => r.name === student.name);
+                    const otherNotes = studentRecords.map(r => r.other.trim()).filter(note => note !== '');
+                    if (otherNotes.length > 0) {
+                        otherNotesContainer.innerHTML = `<strong style="color: var(--primary-color); font-size: 14px;">កំណត់ត្រាបន្ថែម (ផ្សេងៗ):</strong><ul class="other-notes-list">${otherNotes.map(note => `<li>${note}</li>`).join('')}</ul>`;
+                        otherNotesContainer.style.display = 'block';
+                    }
+                } else {
+                    document.getElementById('student-info-display').innerHTML = `<p><i>សូមជ្រើសរើសបុគ្គលិកដើម្បីបង្ហាញព័ត៌មាន...</i></p>`;
+                }
+            }
+
+            function renderHistoryTable() {
+                const searchTerm = document.getElementById('history-search-input').value.toLowerCase();
+                const selectedDate = document.getElementById('date-filter').value;
+                let filteredRecords = allRecords.filter(r => (!selectedDate || r.date === selectedDate) && (!searchTerm || r.name.toLowerCase().includes(searchTerm) || (r.id && r.id.toString().toLowerCase().includes(searchTerm))));
+                historyTableBody.innerHTML = '';
+                if (filteredRecords.length === 0) {
+                    historyTableBody.innerHTML = '<tr><td colspan="10" style="text-align:center;">មិនមានទិន្នន័យ</td></tr>';
+                    return;
+                }
+                const editIcon = `<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></svg>`;
+                const deleteIcon = `<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path></svg>`;
+                filteredRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+                filteredRecords.forEach(record => {
+                    const overallCount = (infractionCounts[record.name] && infractionCounts[record.name].total) || 0;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${record.date}</td><td>${record.id || 'N/A'}</td><td>${record.name}</td><td>${record.gender}</td><td>${record.studentClass}</td><td>${record.group}</td><td>${record.reason}</td><td>${record.other || ''}</td><td>${overallCount} ដង</td><td class="action-buttons"><button class="action-btn edit-btn" data-row-index="${record.rowIndex}">${editIcon}</button><button class="action-btn delete-btn" data-row-index="${record.rowIndex}">${deleteIcon}</button></td>`;
+                    historyTableBody.appendChild(row);
+                });
+            }
+
+            function populateDateFilter() {
+                const dateFilterSelect = document.getElementById('date-filter');
+                const uniqueDates = [...new Set(allRecords.map(r => r.date))].sort((a, b) => new Date(b) - new Date(a));
+                dateFilterSelect.innerHTML = '<option value="">ជ្រើសតាមកាលបរិច្ឆេទទាំងអស់</option>';
+                uniqueDates.forEach(date => {
+                    const option = document.createElement('option'); option.value = date; option.textContent = date;
+                    dateFilterSelect.appendChild(option);
+                });
+            }
+
+            document.getElementById('toggle-history-btn').addEventListener('click', () => {
+                const historySection = document.getElementById('history-section');
+                const isHidden = historySection.classList.toggle('hidden');
+                document.getElementById('toggle-history-btn').textContent = isHidden ? 'បង្ហាញ​ទិន្នន័យ​ដែល​បាន​បញ្ចូល' : 'លាក់តារាងព័ត៌មាន';
+            });
+
+            studentSearchInput.addEventListener('input', (e) => {
+                const searchValue = e.target.value.trim();
+                selectedStudent = allStudents.find(s => s.name.trim() === searchValue);
+                displayStudentDetails(selectedStudent);
+            });
+            document.getElementById('history-search-input').addEventListener('input', renderHistoryTable);
+            document.getElementById('date-filter').addEventListener('change', renderHistoryTable);
+
+            initializeApp();
+        });
+    </script>
+</body>
+
+</html>
